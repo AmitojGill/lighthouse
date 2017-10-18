@@ -7,14 +7,14 @@
 
 const KB_BYTES = 1024;
 const ResponsesAreCompressedAudit =
-  require('../../../audits/byte-efficiency/uses-request-compression.js');
+  require('../../../audits/byte-efficiency/uses-response-compression.js');
 const assert = require('assert');
 
-function generateResponse(filename, type, originalSize, gzipSize) {
+function generateResponse(filename, mimeType, transferSize, gzipSize) {
   return {
     url: `http://google.com/${filename}`,
-    mimeType: `${type}`,
-    resourceSize: originalSize,
+    mimeType,
+    transferSize,
     gzipSize,
   };
 }

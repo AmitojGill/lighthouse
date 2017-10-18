@@ -19,7 +19,7 @@ const CHROME_EXTENSION_PROTOCOL = 'chrome-extension:';
 class ResponseCompression extends Gatherer {
   /**
    * @param {!NetworkRecords} networkRecords
-   * @return {!Array<{url: string, isBase64DataUri: boolean, mimeType: string, resourceSize: number}>}
+   * @return {!Array<{url: string, isBase64DataUri: boolean, mimeType: string, transferSize: number}>}
    */
   static filterUnoptimizedResponses(networkRecords) {
     const unoptimizedResponses = [];
@@ -28,8 +28,8 @@ class ResponseCompression extends Gatherer {
       const isTextBasedResource = record.resourceType() && record.resourceType().isTextType();
       const isChromeExtensionResource = record.url.startsWith(CHROME_EXTENSION_PROTOCOL);
 
-      if (!isTextBasedResource || !record.resourceSize || !record.finished ||
-        isChromeExtensionResource) {
+      if (!isTextBasedResource || !record.transferSize || !record.finished ||
+        isChromeExtensionResource || record.statusCode === 304) {
         return;
       }
 
@@ -43,7 +43,7 @@ class ResponseCompression extends Gatherer {
           requestId: record.requestId,
           url: record.url,
           mimeType: record.mimeType,
-          resourceSize: record.resourceSize,
+          transferSize: record.transferSize,
         });
       }
     });
