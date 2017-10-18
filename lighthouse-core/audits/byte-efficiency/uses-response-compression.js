@@ -41,14 +41,15 @@ class ResponsesAreCompressed extends ByteEfficiencyAudit {
 
     const results = [];
     uncompressedResponses.forEach(record => {
-      const originalSize = record.transferSize;
+      const originalSize = record.resourceSize;
       const gzipSize = record.gzipSize;
       const gzipSavings = originalSize - gzipSize;
 
       // we require at least 10% savings off the original size AND at least 1400 bytes
       // if the savings is smaller than either, we don't care
       if (1 - gzipSize / originalSize < IGNORE_THRESHOLD_IN_PERCENT ||
-          gzipSavings < IGNORE_THRESHOLD_IN_BYTES
+          gzipSavings < IGNORE_THRESHOLD_IN_BYTES ||
+          record.transferSize < gzipSize
       ) {
         return;
       }
@@ -56,7 +57,7 @@ class ResponsesAreCompressed extends ByteEfficiencyAudit {
       // remove duplicates
       const url = URL.elideDataURI(record.url);
       const isDuplicate = results.find(res => res.url === url &&
-        res.totalBytes === record.transferSize);
+        res.totalBytes === record.resourceSize);
       if (isDuplicate) {
         return;
       }
